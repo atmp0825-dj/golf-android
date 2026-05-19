@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no"/>
+<title>골프정산</title>
+
+<meta name="theme-color" content="#c9a22a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="골프정산"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#091810;--s1:rgba(255,255,255,.055);--s2:rgba(255,255,255,.09);--bd:rgba(201,162,42,.22);--bdl:rgba(255,255,255,.09);--gold:#c9a22a;--goldl:#e4b93e;--tx:#e8e0d0;--mut:#7a9a85;--grn:#4ade80;--red:#f87171;--r:12px}
+body{background:var(--bg);color:var(--tx);font-family:'Noto Sans KR',sans-serif;min-height:100vh;background-image:radial-gradient(ellipse at top left,#0d2a18 0%,#091810 65%);-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+#app{max-width:480px;margin:0 auto;padding:env(safe-area-inset-top,14px) 13px calc(env(safe-area-inset-bottom,0px)+40px)}
+.logo{text-align:center;padding:16px 0 10px}
+.logo h1{font-size:1.45rem;font-weight:700;color:var(--gold);letter-spacing:.04em}
+.logo p{color:var(--mut);font-size:.72rem;margin-top:3px}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:15px;margin-bottom:11px}
+.card-hd{font-size:.72rem;font-weight:700;color:var(--gold);margin-bottom:11px;display:flex;align-items:center;gap:7px;text-transform:uppercase;letter-spacing:.07em}
+.card-hd::before{content:'';width:3px;height:11px;background:var(--gold);border-radius:2px;flex-shrink:0}
+.field{margin-bottom:11px}.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:.7rem;color:var(--mut);margin-bottom:4px;font-weight:500}
+.inp{width:100%;padding:8px 11px;background:var(--s2);border:1px solid var(--bdl);border-radius:8px;color:var(--tx);font-family:inherit;font-size:.85rem;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.inp:focus{border-color:var(--gold)}
+.inp-row{display:flex;gap:6px}.inp-row .inp{flex:1}
+.seg{display:flex;background:var(--s1);border-radius:8px;overflow:hidden;border:1px solid var(--bdl)}
+.sbtn{flex:1;padding:7px 4px;border:none;background:transparent;color:var(--mut);font-size:.75rem;font-family:inherit;cursor:pointer;transition:all .15s;font-weight:500}
+.sbtn.sel{background:var(--gold);color:#091810;font-weight:700}
+.row2{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+.row2+.row2{border-top:1px solid var(--bdl)}
+.row2 .rn{font-size:.83rem;font-weight:600}.row2 .rd{font-size:.68rem;color:var(--mut);margin-top:2px}
+.sw{position:relative;width:40px;height:22px;display:inline-block;flex-shrink:0;cursor:pointer}
+.sw-t{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:11px;transition:background .2s}
+.sw-t.on{background:var(--gold)}
+.sw-k{position:absolute;left:3px;top:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.sw-k.on{left:21px}
+.btn{padding:9px 16px;border-radius:8px;border:1px solid var(--bdl);background:transparent;color:var(--tx);font-family:inherit;font-weight:700;font-size:.81rem;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn-gold{background:var(--gold);color:#091810;border-color:var(--gold)}
+.btn-gold:hover{background:var(--goldl);color:#091810}
+.btn-sm{padding:4px 9px;font-size:.7rem;border-radius:6px}
+.btn-danger{background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.3)}
+.foot{display:flex;gap:8px;margin-top:14px}.foot .btn{flex:1}
+.stepbar{display:flex;align-items:center;justify-content:center;margin-bottom:15px}
+.sdot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--bdl);background:var(--s1);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:var(--mut);transition:all .2s;flex-shrink:0}
+.sdot.active{border-color:var(--gold);background:var(--gold);color:#091810}
+.sdot.done{border-color:var(--gold);background:rgba(201,162,42,.15);color:var(--gold);cursor:pointer}
+.sline{width:22px;height:1.5px;background:var(--bdl);flex-shrink:0;transition:background .3s}
+.sline.done{background:var(--gold)}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:.73rem}
+th{background:rgba(201,162,42,.1);color:var(--gold);padding:6px 3px;text-align:center;font-weight:700;font-size:.66rem;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+td{padding:4px 3px;text-align:center;border-bottom:1px solid var(--bdl);vertical-align:middle}
+tfoot td{border-top:2px solid var(--gold);background:rgba(201,162,42,.07);border-bottom:none;font-weight:700}
+.sc-in{width:33px;padding:3px 2px;background:var(--s2);border:1px solid var(--bdl);border-radius:5px;color:var(--tx);text-align:center;font-size:.78rem;font-family:'JetBrains Mono',monospace;outline:none;-webkit-appearance:none;appearance:none}
+.sc-in:focus{border-color:var(--gold)}
+.psel{padding:3px 4px;background:var(--s2);border:1px solid var(--bdl);border-radius:5px;color:var(--tx);font-size:.73rem;font-family:inherit;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;width:35px}
+.psel:focus{border-color:var(--gold)}
+.badge{display:inline-block;padding:2px 5px;border-radius:3px;font-size:.61rem;font-weight:700}
+.b-bae{background:rgba(201,162,42,.18);color:var(--gold)}.b-bb{background:rgba(239,68,68,.14);color:#f87171}
+.b-min{background:rgba(255,255,255,.07);color:var(--mut)}.b-skip{background:rgba(255,255,255,.04);color:rgba(122,154,133,.4)}
+.mono{font-family:'JetBrains Mono',monospace;font-weight:600}
+.pos{color:var(--grn)}.neg{color:var(--red)}.zero{color:var(--mut)}
+.up-zone{border:2px dashed rgba(201,162,42,.3);border-radius:11px;padding:22px 14px;text-align:center;cursor:pointer;transition:all .2s}
+.up-zone:hover,.up-zone:active{border-color:var(--gold);background:rgba(201,162,42,.03)}
+.up-zone .ico{font-size:1.9rem;margin-bottom:6px}
+.up-zone .t1{color:var(--tx);font-size:.83rem;font-weight:500}
+.up-zone .t2{color:var(--mut);font-size:.69rem;margin-top:3px}
+.progress-wrap{margin-top:8px}
+.progress-bar{height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .3s}
+.progress-label{font-size:.67rem;color:var(--mut);margin-top:4px;text-align:center}
+.spin{width:22px;height:22px;border:2px solid rgba(201,162,42,.25);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 7px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err{color:#f87171;font-size:.72rem;background:rgba(239,68,68,.08);padding:7px 11px;border-radius:7px;margin-top:7px;border:1px solid rgba(239,68,68,.2);white-space:pre-line}
+.ok{color:var(--grn);font-size:.72rem;background:rgba(74,222,128,.08);padding:7px 11px;border-radius:7px;margin-top:7px;border:1px solid rgba(74,222,128,.2)}
+.warn{color:#fbbf24;font-size:.71rem;background:rgba(251,191,36,.08);padding:7px 11px;border-radius:7px;margin-top:7px;border:1px solid rgba(251,191,36,.2)}
+.res-item{background:var(--s1);border:1px solid var(--bdl);border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.res-item:last-child{margin-bottom:0}
+.res-item.top{border-color:var(--gold);background:rgba(201,162,42,.07)}
+.ri-name{font-weight:700;font-size:.88rem}.ri-rank{font-size:.66rem;color:var(--mut);margin-top:1px}
+.ri-amt{font-family:'JetBrains Mono',monospace;font-size:1.18rem;font-weight:600}
+.par-chip{display:inline-block;width:17px;height:17px;border-radius:3px;font-size:.63rem;font-weight:700;line-height:17px;text-align:center}
+.p3c{background:rgba(250,204,21,.13);color:#c9a22a}.p4c{background:rgba(96,165,250,.13);color:#7dd3fc}.p5c{background:rgba(74,222,128,.13);color:#86efac}
+.carry-up{color:var(--gold);font-size:.55rem;vertical-align:super;margin-left:1px;font-weight:700}
+.trg{font-size:.57rem;color:rgba(122,154,133,.8);margin-top:1px}
+.sc-sm{font-size:.59rem;margin-top:1px;color:var(--mut)}.sc-sm.bird{color:var(--gold)}
+.info-box{font-size:.68rem;color:var(--mut);padding:8px 10px;background:rgba(201,162,42,.06);border-radius:7px;line-height:1.78;margin-top:4px;border:1px solid rgba(201,162,42,.13)}
+.divider{height:1px;background:var(--bdl);margin:10px 0}
+.hc-row{display:flex;gap:5px;align-items:center;margin-bottom:7px}
+.range-seg{display:flex;gap:5px}
+.rbtn{flex:1;padding:7px 4px;border-radius:7px;border:1px solid var(--bdl);background:var(--s1);color:var(--mut);font-size:.74rem;font-family:inherit;cursor:pointer;transition:all .15s;font-weight:500;text-align:center}
+.rbtn.sel{background:rgba(201,162,42,.18);border-color:var(--gold);color:var(--gold);font-weight:700}
+.hole-count{font-size:.67rem;color:var(--mut);margin-top:8px;display:flex;align-items:center;gap:6px}
+.hole-count .cnt{background:rgba(201,162,42,.12);color:var(--gold);padding:2px 7px;border-radius:4px;font-weight:700;font-size:.69rem}
+.mini-tbl{width:100%;border-collapse:collapse;font-size:.73rem;margin-top:8px}
+.mini-tbl th{background:rgba(255,255,255,.05);color:var(--mut);padding:5px 7px;text-align:left;font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.mini-tbl td{padding:6px 7px;border-bottom:1px solid var(--bdl);vertical-align:middle}
+.rel-pos{color:#f87171;font-weight:600}.rel-neg{color:var(--grn);font-weight:600}.rel-zero{color:var(--mut)}
+.np-btns{display:flex;gap:3px;flex-wrap:wrap}
+.np-btn{padding:2px 6px;border-radius:4px;border:1px solid var(--bdl);background:var(--s1);color:var(--mut);font-size:.66rem;cursor:pointer;font-family:inherit;transition:all .15s}
+.np-btn.sel{background:rgba(201,162,42,.15);border-color:var(--gold);color:var(--gold);font-weight:700}
+.key-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.key-dot.set{background:var(--grn)}.key-dot.unset{background:rgba(255,255,255,.2)}
+/* OCR mode selector */
+.ocr-mode{display:flex;gap:8px;margin-bottom:2px}
+.ocr-opt{flex:1;padding:10px 8px;border-radius:9px;border:1px solid var(--bdl);background:var(--s1);cursor:pointer;transition:all .15s;text-align:center}
+.ocr-opt.sel{border-color:var(--gold);background:rgba(201,162,42,.08)}
+.ocr-opt .om-icon{font-size:1.3rem;margin-bottom:4px}
+.ocr-opt .om-title{font-size:.76rem;font-weight:700;color:var(--tx)}
+.ocr-opt .om-desc{font-size:.63rem;color:var(--mut);margin-top:2px;line-height:1.4}
+.ocr-opt.sel .om-title{color:var(--gold)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+;continue;}
+    const raw=scores[h].slice(0,n).map(s=>parseInt(s));
+    if(raw.some(isNaN)){hR.push({hole:h+1,incomplete:true,par,net:Array(n).fill(0),sc:raw});continue;}
+    const freq={};raw.forEach(s=>{freq[s]=(freq[s]||0)+1;});
+    const maxG=Math.max(...Object.values(freq)),allT=maxG===n;
+    const birds=raw.map((s,i)=>s<=par-1?i:-1).filter(i=>i>=0);
+    let trigger=false;const trgs=[];
+    if(maxG>=3){trigger=true;trgs.push(allT?'전원동타':`${maxG}명동타`);}
+    if(par===3&&raw.some(s=>s>=par+2)){trigger=true;trgs.push('파3더블+');}
+    if((par===4||par===5)&&raw.some(s=>s>=par+3)){trigger=true;trgs.push('트리플+');}
+    if(birds.length>0){trigger=true;trgs.push('버디');}
+    let mult=1,tag='민판';
+    if(co&&trigger&&rules.baebae){mult=4;tag='배배판';}else if(co||trigger){mult=2;tag='배판';}
+    const unit=rules.baseUnit*mult,net=Array(n).fill(0);
+    for(let i=0;i<n;i++){for(let j=i+1;j<n;j++){
+      let diff=raw[j]-raw[i];
+      if(rules.birdieBonus){const ib=raw[i]<=par-1,jb=raw[j]<=par-1;if(ib&&!jb)diff+=1;else if(jb&&!ib)diff-=1;}
+      const a=diff*unit;net[i]+=a;net[j]-=a;
+    }}
+    if(rules.nearPin&&par===3&&nearPins[h]>=0&&nearPins[h]<n){
+      const w=nearPins[h];for(let p=0;p<n;p++)if(p!==w){net[w]+=unit;net[p]-=unit;}
+    }
+    net.forEach((v,i)=>{tot[i]+=v;});
+    co=allT;
+    hR.push({hole:h+1,par,mult,tag,trgs,sc:raw,birds,net,unit,nextCarry:allT});
+  }
+  if(rules.hcap&&rules.handicaps.length){
+    rules.handicaps.forEach(({from,to,str})=>{if(from<n&&to<n&&str>0){const a=str*rules.baseUnit;tot[from]-=a;tot[to]+=a;}});
+  }
+  return{holeResults:hR,totals:tot};
+}
+
+const fmtK=v=>{if(v===0)return'0';const s=v>0?'+':'-',a=Math.abs(v);return s+(a>=1000?(a/1000)+'k':a);};
+const fmtW=v=>(v>0?'+':'')+v.toLocaleString()+'원';
+const mc=v=>v>0?'pos':v<0?'neg':'zero';
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const ns=()=>S.names.slice(0,S.pc);
+const pch=par=>`<span class="par-chip p${par}c">${par}</span>`;
+function countFilled(){let c=0;for(let h=0;h<18;h++){if(!S.rules.holes[h])continue;const r=S.scores[h].slice(0,S.pc).map(s=>parseInt(s));if(!r.some(isNaN))c++;}return c;}
+function getRange(){const h=S.rules.holes;const f=h.slice(0,9).every(Boolean),b=h.slice(9).every(Boolean),fn=h.slice(0,9).every(v=>!v),bn=h.slice(9).every(v=>!v);if(f&&b)return'all';if(f&&bn)return'front';if(b&&fn)return'back';return'custom';}
+function setRange(r){S.rules.holes=Array(18).fill(false);if(r==='all')S.rules.holes.fill(true);else if(r==='front')for(let i=0;i<9;i++)S.rules.holes[i]=true;else if(r==='back')for(let i=9;i<18;i++)S.rules.holes[i]=true;}
+
+// ── Tesseract OCR ──────────────────────────────────────────────────
+let _tWorker=null;
+
+async function loadTesseract(){
+  if(!window.Tesseract){
+    S.ocrStatus='OCR 엔진 다운로드 중... (최초 1회, 약 30초)';S.ocrProgress=5;render();
+    await new Promise((res,rej)=>{
+      const sc=document.createElement('script');
+      sc.src='https://unpkg.com/tesseract.js@4/dist/tesseract.min.js';
+      sc.onload=res;sc.onerror=rej;
+      document.head.appendChild(sc);
+    });
+  }
+  if(!_tWorker){
+    S.ocrStatus='OCR 언어팩 로딩 중...';S.ocrProgress=20;render();
+    _tWorker=await Tesseract.createWorker(['kor','eng'],1,{
+      logger:m=>{
+        if(m.status==='loading tesseract core'){S.ocrStatus='OCR 엔진 초기화 중...';S.ocrProgress=30;}
+        if(m.status==='loading language traineddata'){S.ocrStatus='한국어 언어팩 로딩 중...';S.ocrProgress=50;}
+        if(m.status==='initializing api'){S.ocrStatus='OCR 준비 중...';S.ocrProgress=70;}
+        if(m.status==='recognizing text'){S.ocrStatus='텍스트 인식 중...';S.ocrProgress=80+Math.round(m.progress*15);}
+        render();
+      }
+    });
+  }
+  return _tWorker;
+}
+
+function parseOCRText(text){
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+  let parValues=null,playerRows=[];
+
+  for(const line of lines){
+    const upper=line.toUpperCase();
+    // Skip header rows
+    if(upper.match(/^HOLE|^홀|SIGNATURE|시그니처/))continue;
+    // Extract all numbers (including negative)
+    const allNums=(line.match(/-?\d+/g)||[]).map(Number);
+    if(allNums.length<9)continue;
+
+    // Skip total column: remove last number if it's a sum (>20)
+    const nums=allNums[allNums.length-1]>20?allNums.slice(0,-1):allNums;
+
+    // PAR row detection
+    if(upper.includes('PAR')||upper.includes('파')||
+       (nums.length>=9&&nums.every(n=>n>=3&&n<=5))){
+      const pNums=nums.filter(n=>n>=3&&n<=5);
+      if(pNums.length>=9){parValues=pNums.slice(0,18);continue;}
+    }
+
+    // Skip hole number sequences (1-9 or 10-18)
+    const sorted=[...nums].sort((a,b)=>a-b);
+    const isSeq=(sorted[0]===1&&sorted[sorted.length-1]<=18)||(sorted[0]>=1&&sorted[sorted.length-1]-sorted[0]===sorted.length-1);
+    if(isSeq&&sorted[0]>=1&&sorted[sorted.length-1]<=18)continue;
+
+    // Player score row
+    const scoreNums=nums.filter(n=>n>=-3&&n<=15);
+    if(scoreNums.length<9)continue;
+
+    // Extract Korean/English name at start of line
+    const nameMatch=line.match(/^([가-힣]{2,4}|[a-zA-Z]{2,}(?:\s[a-zA-Z]+)?)/);
+    const name=nameMatch?nameMatch[1].trim():'';
+
+    playerRows.push({name,nums:scoreNums.slice(0,parValues?parValues.length:18)});
+  }
+
+  if(!parValues||playerRows.length===0)return null;
+
+  // Detect relative vs absolute scores
+  const players=playerRows.map(pr=>{
+    const sc=pr.nums.slice(0,parValues.length);
+    // Relative: most values are -2 to +4, and there are some 0s or negatives
+    const isRelative=sc.filter(n=>n>=-3&&n<=5).length===sc.length&&sc.some(n=>n<=1);
+    let absScores;
+    if(isRelative){
+      absScores=sc.map((s,i)=>s+(parValues[i]||4));
+    }else{
+      absScores=sc.filter(n=>n>=1&&n<=14);
+    }
+    return{name:pr.name,scores:absScores};
+  });
+
+  return{pars:parValues,players,isRelative:players.length>0&&playerRows[0].nums.some(n=>n<=1&&n>=-2)};
+}
+
+async function runTesseract(file){
+  S.loading=true;S.err='';S.okMsg='';S.warnMsg='';S.ocrProgress=0;render();
+  try{
+    const worker=await loadTesseract();
+    S.ocrStatus='이미지 분석 중...';S.ocrProgress=80;render();
+    const{data:{text}}=await worker.recognize(file);
+    S.ocrProgress=98;S.ocrStatus='결과 처리 중...';render();
+    const result=parseOCRText(text);
+    if(!result||result.players.length===0){
+      S.err='스코어카드를 인식하지 못했어요.\n사진이 선명한지 확인하거나 직접 입력해주세요.';
+      S.loading=false;render();return;
+    }
+    applyOCRResult(result);
+    const warnings=[];
+    if(result.isRelative)warnings.push('파대비타수 감지 → 절대타수로 변환했어요');
+    if(result.players.some(p=>!p.name))warnings.push('일부 이름이 인식되지 않았어요. 다음 단계에서 수정하세요');
+    S.okMsg=`✅ ${result.pars.length}홀 인식 완료! 플레이어 ${result.players.length}명`;
+    if(warnings.length)S.warnMsg='⚠️ '+warnings.join(' · ');
+  }catch(e){
+    S.err='OCR 실패: '+(e.message||'다시 시도해주세요');
+  }
+  S.loading=false;S.ocrProgress=100;render();
+}
+
+// ── Anthropic API OCR ──────────────────────────────────────────────
+async function runAnthropicAPI(file){
+  const apiKey=getApiKey();
+  if(!apiKey){S.err='⚠️ 규칙 설정에서 API 키를 먼저 입력하세요.';render();return;}
+  S.loading=true;S.err='';S.okMsg='';S.warnMsg='';S.ocrStatus='AI 인식 중...';S.ocrProgress=50;render();
+  try{
+    const b64=await new Promise((res,rej)=>{const rd=new FileReader();rd.onload=()=>res(rd.result.split(',')[1]);rd.onerror=rej;rd.readAsDataURL(file);});
+    const mt=file.type.startsWith('image/')?file.type:'image/jpeg';
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,messages:[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:mt,data:b64}},
+        {type:'text',text:`이 골프 스코어카드를 분석하여 JSON으로 반환하세요.
+
+파대비타수(0,1,-1 형태)인 경우 절대타수로 변환: 절대타수=PAR+파대비타수
+
+순수 JSON만 반환:
+{"players":["이름1","이름2","이름3","이름4"],"holes":[{"hole":1,"par":4,"scores":[5,4,6,5]},...]}
+
+scores는 반드시 절대타수. 9홀이면 9개, 18홀이면 18개.`}
+      ]}]})
+    });
+    const d=await resp.json();
+    if(d.error)throw new Error(d.error.message);
+    const txt=d.content.map(c=>c.text||'').join('');
+    const parsed=JSON.parse(txt.replace(/```[\w]*\n?|```/g,'').trim());
+    let filled=0;
+    if(parsed.players?.length){S.pc=Math.min(Math.max(parsed.players.length,2),4);parsed.players.slice(0,S.pc).forEach((n,i)=>{if(n)S.names[i]=n;});}
+    if(parsed.holes?.length){
+      S.scores=Array(18).fill(null).map(()=>Array(4).fill(''));
+      const nums=parsed.holes.map(h=>h.hole);
+      const hB=nums.some(n=>n>=10),hF=nums.some(n=>n<=9);
+      if(hF&&!hB)setRange('front');else if(!hF&&hB)setRange('back');else setRange('all');
+      parsed.holes.forEach(({hole,par,scores:hs})=>{const idx=hole-1;if(idx>=0&&idx<18){if(par)S.pars[idx]=par;if(hs){hs.slice(0,S.pc).forEach((s,pi)=>{S.scores[idx][pi]=s>0?String(s):'';});filled++;}}});
+    }
+    S.okMsg=`✅ ${filled}홀 인식 완료! 플레이어 ${S.pc}명`;
+  }catch(e){S.err='인식 실패: '+(e.message||'다시 시도해주세요');}
+  S.loading=false;S.ocrProgress=100;render();
+}
+
+function applyOCRResult(result){
+  const{pars,players}=result;
+  S.pc=Math.min(Math.max(players.length,2),4);
+  players.slice(0,S.pc).forEach((p,i)=>{if(p.name)S.names[i]=p.name;});
+  S.scores=Array(18).fill(null).map(()=>Array(4).fill(''));
+  const holeCount=pars.length;
+  if(holeCount<=9){
+    // Detect if front or back
+    setRange('front');// default to front; user can change
+  }else{setRange('all');}
+  const holesOffset=0;// always start from hole 1 for tesseract
+  pars.forEach((par,i)=>{
+    S.pars[i]=par;
+    players.slice(0,S.pc).forEach((p,pi)=>{
+      if(p.scores[i]!==undefined)S.scores[i][pi]=String(p.scores[i]);
+    });
+  });
+}
+
+async function handleUpload(file){
+  if(!file)return;
+  if(S.ocrMode==='api')await runAnthropicAPI(file);
+  else await runTesseract(file);
+}
+
+// ── 렌더링 ────────────────────────────────────────────────────────
+function render(){
+  const{step,rules,pc,pars,scores,nearPins,loading,err,okMsg,warnMsg,ocrMode,ocrProgress,ocrStatus}=S;
+  const activeNames=ns();const{holeResults,totals}=computeSettlement();
+  const apiKey=getApiKey();
+
+  const stepBar=`<div class="stepbar">${STEPS.map((l,i)=>{
+    const cls=i===step?'active':i<step?'done':'';
+    const line=i>0?`<div class="sline ${i<=step?'done':''}"></div>`:'';
+    return`${line}<div class="sdot ${cls}" onclick="if(${i}<${step})goStep(${i})" title="${l}">${i<step?'✓':i+1}</div>`;
+  }).join('')}</div>`;
+
+  let body='';
+
+  /* ── Step 0: 규칙 ── */
+  if(step===0){
+    const hasKey=!!apiKey;
+    body=`
+    <div class="card">
+      <div class="card-hd">사진 인식 방식</div>
+      <div class="ocr-mode">
+        <div class="ocr-opt${ocrMode==='tesseract'?' sel':''}" onclick="setOcrMode('tesseract')">
+          <div class="om-icon">🆓</div>
+          <div class="om-title">무료 OCR</div>
+          <div class="om-desc">API 키 불필요<br>Tesseract 엔진<br>첫 실행 시 30초↑</div>
+        </div>
+        <div class="ocr-opt${ocrMode==='api'?' sel':''}" onclick="setOcrMode('api')">
+          <div class="om-icon">🎯</div>
+          <div class="om-title">정확 인식</div>
+          <div class="om-desc">Anthropic API<br>타당 약 2-5원<br>API 키 필요</div>
+        </div>
+      </div>
+      ${ocrMode==='api'?`
+      <div style="margin-top:10px">
+        <div style="font-size:.69rem;color:var(--mut);margin-bottom:8px;line-height:1.6">
+          <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--gold)">console.anthropic.com</a>에서 무료 발급 → 붙여넣기
+        </div>
+        <div class="inp-row">
+          <input class="inp" type="password" id="apiKeyInp" value="${esc(apiKey)}" placeholder="sk-ant-..." style="font-family:'JetBrains Mono',monospace;font-size:.78rem" />
+          <button class="btn btn-sm btn-gold" onclick="doSaveKey()" style="flex-shrink:0">저장</button>
+        </div>
+        <div style="font-size:.7rem;margin-top:7px;display:flex;align-items:center;gap:5px">
+          <span class="key-dot ${hasKey?'set':'unset'}"></span>
+          ${hasKey?`<span style="color:var(--grn)">키 저장됨 &nbsp;·&nbsp; <span onclick="doClearKey()" style="cursor:pointer;text-decoration:underline;color:var(--mut)">삭제</span></span>`:'<span style="color:var(--mut)">키 없음</span>'}
+        </div>
+      </div>`:''}
+    </div>
+
+    <div class="card">
+      <div class="card-hd">기본 금액 설정</div>
+      <div class="field"><label>민판 단위 (1타당)</label>
+        <div class="seg">${[1000,2000,5000,10000].map(v=>`<button class="sbtn${rules.baseUnit===v?' sel':''}" onclick="setR('baseUnit',${v})">${v/1000}천원</button>`).join('')}</div>
+      </div>
+      <div class="field"><label>직접 입력 (원)</label>
+        <input class="inp" type="number" min="100" step="500" value="${rules.baseUnit}" onchange="setR('baseUnit',parseInt(this.value)||5000)" />
+      </div>
+      <div class="info-box">민판 ${rules.baseUnit.toLocaleString()}원 &nbsp;·&nbsp; 배판 ${(rules.baseUnit*2).toLocaleString()}원${rules.baebae?` &nbsp;·&nbsp; 배배판 ${(rules.baseUnit*4).toLocaleString()}원`:''}</div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">배판 규칙</div>
+      <div class="row2">
+        <div><div class="rn">배배판 허용</div><div class="rd">전원동타 이월 + 추가조건 → 4배</div></div>
+        <div class="sw" onclick="toggleR('baebae')"><div class="sw-t${rules.baebae?' on':''}"></div><div class="sw-k${rules.baebae?' on':''}"></div></div>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:.67rem;color:var(--mut);line-height:1.85">
+        <div style="font-weight:600;color:rgba(201,162,42,.8);margin-bottom:3px">자동 배판 조건</div>
+        <div>• 버디 달성 &nbsp;·&nbsp; 3명 이상 동타</div>
+        <div>• 파3: 더블보기(+2) 이상 &nbsp;·&nbsp; 파4/5: 트리플(+3) 이상</div>
+        <div>• 전원동타 → 다음 홀 이월배판</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">특별 규칙</div>
+      <div class="row2">
+        <div><div class="rn">버디 +1타 보너스</div><div class="rd">버디 달성 시 타수차에 +1타 추가 수령</div></div>
+        <div class="sw" onclick="toggleR('birdieBonus')"><div class="sw-t${rules.birdieBonus?' on':''}"></div><div class="sw-k${rules.birdieBonus?' on':''}"></div></div>
+      </div>
+      <div class="row2">
+        <div><div class="rn">니어핀 보너스 (파3)</div><div class="rd">파3홀 최근접자 +1타씩 추가 수령</div></div>
+        <div class="sw" onclick="toggleR('nearPin')"><div class="sw-t${rules.nearPin?' on':''}"></div><div class="sw-k${rules.nearPin?' on':''}"></div></div>
+      </div>
+      <div class="row2">
+        <div><div class="rn">핸디캡 적용</div><div class="rd">플레이어 간 핸디 타수 지급 설정</div></div>
+        <div class="sw" onclick="toggleR('hcap')"><div class="sw-t${rules.hcap?' on':''}"></div><div class="sw-k${rules.hcap?' on':''}"></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd">정산 제외 홀 설정</div>
+      <div style="font-size:.68rem;color:var(--mut);margin-bottom:9px">골드 = 정산 포함 · 회색 = 제외 (탭으로 토글)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${Array(18).fill(0).map((_,i)=>`<button style="width:31px;height:31px;border-radius:6px;border:1px solid ${rules.holes[i]?"var(--gold)":"var(--bdl)"};background:${rules.holes[i]?"rgba(201,162,42,.18)":"var(--s1)"};color:${rules.holes[i]?"var(--gold)":"var(--mut)"};font-size:.7rem;font-weight:700;cursor:pointer" onclick="toggleHole(${i})">${i+1}</button>`).join("")}
+      </div>
+      <div style="font-size:.67rem;color:var(--mut);margin-top:8px">${rules.holes.filter(Boolean).length}홀 정산 예정</div>
+    </div>
+    <div class="foot"><button class="btn btn-gold" onclick="goStep(1)">다음: 스코어 입력 →</button></div>`;}
+
+  /* ── Step 1: 스코어 ── */
+  else if(step===1){
+    const range=getRange(),filled=countFilled();
+    const npHdr=rules.nearPin?'<th>니어핀</th>':'';
+    const rows=Array(18).fill(0).map((_,h)=>{
+      const on=rules.holes[h],p=pars[h];
+      const sc=activeNames.map((_,pi)=>`<td><input class="sc-in" type="number" min="1" max="15" ${!on?'disabled':''} value="${esc(scores[h][pi])}" onchange="setSc(${h},${pi},this.value)" /></td>`).join('');
+      const np=rules.nearPin?(p===3&&on?`<td><div class="np-btns"><button class="np-btn${nearPins[h]===-1?' sel':''}" onclick="setNp(${h},-1)">-</button>${activeNames.map((n,pi)=>`<button class="np-btn${nearPins[h]===pi?' sel':''}" onclick="setNp(${h},${pi})">${esc(n)||'P'+(pi+1)}</button>`).join('')}</div></td>`:`<td style="color:var(--mut)">-</td>`):'';
+      return`<tr style="${!on?'opacity:.28':''}"><td style="font-weight:700;font-size:.76rem">${h+1}</td><td><select class="psel" ${!on?'disabled':''} onchange="setPar(${h},this.value)"><option value="3"${p===3?' selected':''}>3</option><option value="4"${p===4?' selected':''}>4</option><option value="5"${p===5?' selected':''}>5</option></select></td>${sc}${np}</tr>`;
+    }).join('');
+
+    const modeLabel=ocrMode==='tesseract'?'🆓 무료 OCR (Tesseract)':'🎯 정확 인식 (Anthropic API)';
+    let uploadContent='';
+    if(loading){
+      uploadContent=`<div class="spin"></div><div class="t1">${ocrStatus||'인식 중...'}</div>
+      <div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" style="width:${ocrProgress}%"></div></div><div class="progress-label">${ocrProgress}%</div></div>`;
+    }else{
+      uploadContent=`<div class="ico">📸</div><div class="t1">스코어카드 사진을 업로드하세요</div><div class="t2">${modeLabel} &nbsp;·&nbsp; 절대/파대비타수 모두 인식</div>`;
+    }
+    body=`
+    <div class="card">
+      <div class="card-hd">📸 사진으로 불러오기</div>
+      <div class="up-zone" onclick="if(!${loading})document.getElementById('fup').click()">${uploadContent}</div>
+      <input type="file" id="fup" accept="image/*" style="display:none" onchange="handleUpload(this.files[0]);this.value='';" />
+      ${err?`<div class="err">${esc(err)}</div>`:''}
+      ${warnMsg?`<div class="warn">${esc(warnMsg)}</div>`:''}
+      ${okMsg?`<div class="ok">${esc(okMsg)}</div>`:''}
+      ${ocrMode==='tesseract'?`<div style="font-size:.65rem;color:var(--mut);margin-top:8px">💡 인식 후 결과를 꼭 확인하세요. 오류 있으면 아래 표에서 직접 수정.</div>`:''}
+    </div>
+    <div class="card">
+      <div class="card-hd">정산 범위</div>
+      <div class="range-seg">
+        <button class="rbtn${range==='all'?' sel':''}" onclick="setRangeBtn('all')">전체 1-18홀</button>
+        <button class="rbtn${range==='front'?' sel':''}" onclick="setRangeBtn('front')">전반 1-9홀</button>
+        <button class="rbtn${range==='back'?' sel':''}" onclick="setRangeBtn('back')">후반 10-18홀</button>
+      </div>
+      <div class="hole-count">입력 완료: <span class="cnt">${filled}홀</span><span style="font-size:.64rem">${filled>=9?'✓ 정산 가능':'스코어를 입력하세요'}</span></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">홀별 타수 입력 / 수정</div>
+      <div style="font-size:.66rem;color:var(--mut);margin-bottom:7px">💡 절대타수로 입력 (파4홀 5타 → 5)</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>홀</th><th>파</th>${activeNames.map((n,i)=>`<th>${esc(n)||'P'+(i+1)}</th>`).join('')}${npHdr}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+    </div>
+    <div class="foot"><button class="btn" onclick="goStep(0)">← 이전</button><button class="btn btn-gold" onclick="goStep(2)">다음: 이름 확인 →</button></div>`;}
+
+  /* ── Step 2: 이름 확인 ── */
+  else if(step===2){
+    const filled=countFilled();
+    const eh=holeResults.filter(r=>!r.skipped&&!r.incomplete);
+    const summary=activeNames.map((n,pi)=>{
+      const tot=eh.reduce((s,r)=>s+(r.sc[pi]||0),0);
+      const par=eh.reduce((s,r)=>s+r.par,0);const rel=tot-par;
+      const rs=tot?(rel>0?`<span class="rel-pos">+${rel}</span>`:rel<0?`<span class="rel-neg">${rel}</span>`:`<span class="rel-zero">E</span>`):'<span class="rel-zero">-</span>';
+      return`<tr><td style="font-weight:600">${esc(n||'P'+(pi+1))}</td><td style="text-align:right;font-family:'JetBrains Mono',monospace;font-weight:600">${tot||'-'}</td><td style="text-align:right">${rs}</td></tr>`;
+    }).join('');
+    const hcRows=rules.handicaps.map((hc,idx)=>`
+      <div class="hc-row">
+        <select class="inp" style="flex:1" onchange="updHc(${idx},'from',this.value)">${activeNames.map((n,i)=>`<option value="${i}"${hc.from===i?' selected':''}>${esc(n)||'P'+(i+1)}</option>`).join('')}</select>
+        <span style="color:var(--mut);flex-shrink:0">→</span>
+        <select class="inp" style="flex:1" onchange="updHc(${idx},'to',this.value)">${activeNames.map((n,i)=>`<option value="${i}"${hc.to===i?' selected':''}>${esc(n)||'P'+(i+1)}</option>`).join('')}</select>
+        <input class="inp" type="number" min="0" value="${hc.str||1}" style="width:46px;flex-shrink:0" onchange="updHc(${idx},'str',this.value)" />
+        <span style="color:var(--mut);font-size:.68rem;flex-shrink:0">타</span>
+        <button class="btn btn-sm btn-danger" onclick="rmHc(${idx})">✕</button>
+      </div>`).join('');
+    body=`
+    <div class="card">
+      <div class="card-hd">플레이어 이름 확인</div>
+      <div style="font-size:.68rem;color:var(--mut);margin-bottom:10px">인식된 이름을 확인하고 수정하세요</div>
+      <div class="field"><label>인원 수</label>
+        <div class="seg">${[2,3,4].map(n=>`<button class="sbtn${pc===n?' sel':''}" onclick="setPc(${n})">${n}명</button>`).join('')}</div>
+      </div>
+      ${Array(pc).fill(0).map((_,i)=>`<div class="field"><label>플레이어 ${i+1}</label><input class="inp" type="text" value="${esc(S.names[i])}" oninput="setName(${i},this.value)" placeholder="플레이어 ${i+1} 이름" /></div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-hd">스코어 요약 (${filled}홀)</div>
+      <table class="mini-tbl"><thead><tr><th>플레이어</th><th style="text-align:right">타수합계</th><th style="text-align:right">파 대비</th></tr></thead><tbody>${summary}</tbody></table>
+      <div style="font-size:.65rem;color:var(--mut);margin-top:8px">스코어가 다르면 ← 이전으로 돌아가 수정하세요</div>
+    </div>
+    ${rules.hcap?`<div class="card"><div class="card-hd">핸디캡 설정</div><div style="font-size:.67rem;color:var(--mut);margin-bottom:9px">A → B: A가 B에게 타수 × ${rules.baseUnit.toLocaleString()}원 지급</div>${hcRows}<button class="btn btn-sm" style="border-color:var(--gold);color:var(--gold);margin-top:4px" onclick="addHc()">+ 핸디캡 추가</button></div>`:''}
+    <div class="foot"><button class="btn" onclick="goStep(1)">← 이전</button><button class="btn btn-gold" onclick="goStep(3)">정산 계산 →</button></div>`;}
+
+  /* ── Step 3: 결과 ── */
+  else if(step===3){
+    const filled=countFilled();
+    const sorted=[...totals.map((v,i)=>({v,i,name:activeNames[i]||`P${i+1}`}))].sort((a,b)=>b.v-a.v);
+    const cards=sorted.map((p,rank)=>`<div class="res-item${rank===0&&p.v>0?' top':''}"><div><div class="ri-name">${rank===0&&p.v>0?'🏆 ':''}${esc(p.name)}</div><div class="ri-rank">${rank+1}위</div></div><div class="ri-amt ${mc(p.v)}">${fmtW(p.v)}</div></div>`).join('');
+    const hRows=holeResults.map(r=>{
+      if(r.skipped)return`<tr style="opacity:.22"><td style="font-weight:700">${r.hole}</td><td>${pch(r.par)}</td><td><span class="badge b-skip">제외</span></td>${activeNames.map(()=>'<td class="zero">-</td>').join('')}</tr>`;
+      if(r.incomplete)return`<tr style="opacity:.35"><td style="font-weight:700">${r.hole}</td><td>${pch(r.par)}</td><td><span class="badge b-skip">미입력</span></td>${activeNames.map(()=>'<td class="zero">-</td>').join('')}</tr>`;
+      const nc=r.net.map((v,i)=>`<td><div class="mono ${mc(v)}">${fmtK(v)}</div><div class="sc-sm${r.birds&&r.birds.includes(i)?' bird':''}">${r.sc[i]}${r.birds&&r.birds.includes(i)?'🐦':''}</div></td>`).join('');
+      return`<tr><td style="font-weight:700">${r.hole}${r.nextCarry?`<span class="carry-up">⬆</span>`:''}</td><td>${pch(r.par)}</td><td><span class="badge ${r.mult===4?'b-bb':r.mult===2?'b-bae':'b-min'}">${r.tag}</span>${r.trgs&&r.trgs.length?`<div class="trg">${r.trgs.join('·')}</div>`:''}</td>${nc}</tr>`;
+    }).join('');
+    body=`
+    <div class="card">
+      <div class="card-hd">🏆 최종 정산 결과</div>
+      <div style="font-size:.66rem;color:var(--mut);margin-bottom:10px">${rules.baseUnit.toLocaleString()}원판 &nbsp;·&nbsp; <strong style="color:var(--gold)">${filled}홀</strong> 정산${rules.birdieBonus?' &nbsp;·&nbsp; 버디보너스':''}${rules.nearPin?' &nbsp;·&nbsp; 니어핀':''}${rules.baebae?' &nbsp;·&nbsp; 배배판':''}</div>
+      ${cards}
+    </div>
+    <div class="card">
+      <div class="card-hd">홀별 정산 내역</div>
+      <div style="font-size:.63rem;color:var(--mut);margin-bottom:6px">⬆ 다음홀 이월배판 &nbsp;·&nbsp; 🐦 버디</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>홀</th><th>파</th><th>구분</th>${activeNames.map((n,i)=>`<th>${esc(n)||'P'+(i+1)}</th>`).join('')}</tr></thead>
+        <tbody>${hRows}</tbody>
+        <tfoot><tr><td colspan="3" style="text-align:left;padding-left:7px;color:var(--gold)">합계</td>${totals.map(v=>`<td><span class="mono ${mc(v)}">${fmtK(v)}</span></td>`).join('')}</tr></tfoot>
+      </table></div>
+    </div>
+    <div class="foot"><button class="btn" onclick="goStep(1)">← 스코어 수정</button><button class="btn" style="border-color:var(--gold);color:var(--gold)" onclick="newGame()">새 게임 🔄</button></div>`;}
+
+  document.getElementById('app').innerHTML=`<div class="logo"><h1>⛳ 골프정산</h1><p>Golf Settler</p></div>${stepBar}${body}`;
+}
+
+// ── 이벤트 핸들러 ─────────────────────────────────────────────────
+window.goStep=s=>{S.step=s;render();};
+window.setR=(k,v)=>{S.rules[k]=v;render();};
+window.toggleR=k=>{S.rules[k]=!S.rules[k];render();};
+window.setPc=n=>{S.pc=n;render();};
+window.setName=(i,v)=>{S.names[i]=v;};
+window.setSc=(h,pi,v)=>{S.scores[h][pi]=v;};
+window.setPar=(h,v)=>{S.pars[h]=parseInt(v);render();};
+window.setNp=(h,v)=>{S.nearPins[h]=v;render();};
+window.addHc=()=>{S.rules.handicaps.push({from:0,to:1,str:1});render();};
+window.rmHc=i=>{S.rules.handicaps.splice(i,1);render();};
+window.updHc=(i,k,v)=>{S.rules.handicaps[i][k]=k==='str'?(parseInt(v)||0):parseInt(v);render();};
+window.toggleHole=h=>{S.rules.holes[h]=!S.rules.holes[h];render();};
+window.setRangeBtn=r=>{setRange(r);render()};
+window.setOcrMode=m=>{saveOcrMode(m);render();};
+window.doSaveKey=()=>{saveApiKey(document.getElementById('apiKeyInp')?.value||'');render();};
+window.doClearKey=()=>{saveApiKey('');render();};
+window.newGame=()=>{S.scores=Array(18).fill(null).map(()=>Array(4).fill(''));S.nearPins=Array(18).fill(-1);S.okMsg='';S.warnMsg='';S.step=0;render();};
+window.handleUpload=handleUpload;
+
+window.addEventListener('online',render);
+window.addEventListener('offline',render);
+render();
+</script>
+</body>
+</html>
